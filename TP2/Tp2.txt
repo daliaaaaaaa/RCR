@@ -1,0 +1,253 @@
+java.util.* : Cela importe les classes de la bibliothèque Java standard qui sont utiles pour les collections, comme List, Set, etc.
+
+org.tweetyproject.logics.fol.parser.FolParser : Classe utilisée pour analyser des formules en logique de premier ordre (FOL - First Order Logic).
+
+org.tweetyproject.logics.fol.reasoner.FolReasoner : Interface de raisonneur pour la logique de premier ordre, utilisée pour effectuer des inférences sur des ensembles de croyances.
+
+org.tweetyproject.logics.fol.reasoner.SimpleFolReasoner : Implémentation simple du raisonneur de logique de premier ordre, utilisée pour les inférences dans l'exemple.
+
+org.tweetyproject.logics.fol.syntax.* : Contient des classes liées à la syntaxe FOL, comme les prédicats, les constantes et les formules.
+
+org.tweetyproject.logics.commons.syntax.* : Contient des classes de syntaxe communes, comme Sort, qui représente les types d'objets dans le domaine de discours.
+
+
+2. Initialisation du Raisonneur
+
+FolReasoner.setDefaultReasoner(new SimpleFolReasoner()) : Définit un raisonneur par défaut, ici un SimpleFolReasoner, pour la logique de premier ordre. Cela permet à l'instance par défaut de résoudre des requêtes sur des ensembles de croyances.
+
+FolReasoner reasoner = FolReasoner.getDefaultReasoner(); : Récupère le raisonneur par défaut défini précédemment.
+
+
+3. Création de la Signature et des Entités
+
+FolSignature sig1 = new FolSignature(true); : Crée une signature FOL. Une signature définit les sorts (types) et les prédicats dans la logique.
+
+Sort sortAnimal1 = new Sort("Animal"); : Crée un Sort appelé "Animal", qui sera utilisé comme type pour les objets (par exemple, les animaux comme le pingouin et le kiwi).
+
+sig1.add(sortAnimal1); : Ajoute le Sort "Animal" à la signature.
+
+Constant penguin = new Constant("penguin", sortAnimal1); : Crée une constante "penguin" qui appartient au type sortAnimal1 (c'est-à-dire "Animal").
+
+sig1.add(penguin, kiwi); : Ajoute les constantes "penguin" et "kiwi" à la signature.
+
+
+4. Création des Prédicats
+
+Predicate flies = new Predicate("Flies", List.of(sortAnimal1)); : Crée un prédicat "Flies" qui prend un paramètre du type "Animal". Cela représente l'idée qu'un animal peut voler.
+
+Predicate knows = new Predicate("Knows", List.of(sortAnimal1, sortAnimal1)); : Crée un prédicat "Knows" qui prend deux paramètres de type "Animal". Cela représente l'idée qu'un animal connaît un autre animal.
+
+sig1.add(flies, knows); : Ajoute les prédicats "Flies" et "Knows" à la signature.
+
+
+5. Création des Formules et Ensembles de Croyances
+
+FolParser parser = new FolParser(); : Crée un analyseur FOL, utilisé pour analyser des chaînes de caractères représentant des formules FOL.
+
+parser.setSignature(sig1); : Définit la signature à utiliser pour analyser les formules (celles définies précédemment).
+
+FolBeliefSet bs1 = new FolBeliefSet(); : Crée un ensemble de croyances FOL. Un ensemble de croyances contient des formules logiques.
+
+bs1.add((FolFormula) parser.parseFormula("!Flies(kiwi)")); : Analyse la formule !Flies(kiwi) (le kiwi ne vole pas) et l'ajoute à l'ensemble de croyances.
+
+reasoner.query(bs1, parser.parseFormula("Flies(kiwi)")); : Interroge le raisonneur pour savoir si la formule Flies(kiwi) est vraie, étant donné l'ensemble de croyances bs1.
+
+Cela renvoie false puisque l'ensemble de croyances contient la formule !Flies(kiwi) (le kiwi ne vole pas).
+
+
+
+
+
+Explication logique de l'exemple, écrite de manière plus accessible, sans le code mais en suivant le raisonnement sous-jacent.
+
+---
+
+### Contexte de l'exemple
+
+Cet exemple repose sur un **ensemble de croyances (ou base de connaissances)** et consiste à raisonner sur un **ensemble d'animaux** qui appartiennent à différentes catégories, telles que "naut" (nautique), "ceph" (céphalopodes), "mol" (molusques) et "acoq" (coquilles). L'objectif est d'explorer les relations logiques entre ces catégories, en utilisant un raisonnement basé sur des **formules logiques**.
+
+---
+
+### Définition des objets dans l'exemple
+
+1. **Animaux :**
+   Il y a trois animaux spécifiques : **a**, **b**, et **c**.
+
+2. **Catégories (ou sortes) :**
+
+   * **naut(X)** signifie que l'animal **X** appartient à la catégorie des animaux nautiques (par exemple, des animaux vivant dans l'eau, comme les pieuvres).
+   * **ceph(X)** signifie que l'animal **X** appartient à la catégorie des céphalopodes (des animaux comme les pieuvres ou les calmars).
+   * **mol(X)** signifie que l'animal **X** est un mollusque (par exemple, une huître).
+   * **acoq(X)** signifie que l'animal **X** possède une coquille.
+
+3. **Relations et règles logiques :**
+
+   * Si un animal est nautique, alors il est aussi un céphalopode.
+   * Si un animal est un céphalopode, alors il est aussi un mollusque.
+   * Si un animal est un mollusque, et qu'il n'est pas à la fois un céphalopode et un nautique, alors il possède une coquille.
+   * Si un animal est un céphalopode mais pas nautique, alors il n'a pas de coquille.
+   * Si un animal est nautique, alors il possède aussi une coquille.
+
+4. **Faits donnés (Connaissances explicites) :**
+
+   * L'animal **a** est nautique.
+   * L'animal **b** est un céphalopode.
+   * L'animal **c** est un mollusque.
+
+---
+
+### Raisonnement
+
+Maintenant, nous avons plusieurs **règles logiques** et **faits** que nous pouvons utiliser pour **dédire** de nouvelles informations.
+
+1. **Règle 1 :**
+
+   * *Si un animal est nautique, alors il est céphalopode.*
+   * Donc, si un animal appartient à la catégorie "naut" (par exemple, **a**), il appartient aussi à la catégorie "ceph".
+
+2. **Règle 2 :**
+
+   * *Si un animal est céphalopode, alors il est mollusque.*
+   * Cela nous permet de déduire que si un animal est un céphalopode, comme **b**, il est aussi un mollusque.
+
+3. **Règle 3 :**
+
+   * *Si un animal est un mollusque, et qu'il n'est pas un céphalopode et un nautique, alors il possède une coquille.*
+   * Ici, si un animal est un mollusque (comme **c**), mais qu'il n'est ni nautique ni céphalopode, il possède une coquille. Cependant, cette règle n'est pas appliquée directement pour **c** dans cet exemple, car nous n'avons pas cette information spécifique.
+
+4. **Règle 4 :**
+
+   * *Si un animal est céphalopode mais pas nautique, alors il n'a pas de coquille.*
+   * Par exemple, si **b** était un céphalopode mais pas nautique, il n'aurait pas de coquille.
+
+5. **Règle 5 :**
+
+   * *Si un animal est nautique, alors il possède une coquille.*
+   * Puisque **a** est nautique, il possède une coquille.
+
+---
+
+### Résultats de la requête
+
+Enfin, nous posons des requêtes sur ces faits et règles :
+
+1. **Query: acoq(a) ?**
+
+   * Nous cherchons à savoir si **a** possède une coquille.
+   * Selon la règle 5, si un animal est nautique, il possède une coquille. Donc, **a** possède bien une coquille.
+   * Résultat : **Vrai**, **a** possède une coquille.
+
+2. **Query: acoq(b) ?**
+
+   * Nous cherchons à savoir si **b** possède une coquille.
+   * D'après les règles précédentes, **b** est un céphalopode et un mollusque, mais il n'est pas nécessairement nautique, donc il ne peut pas être déduit directement qu'il possède une coquille.
+   * Résultat : **Faux**, **b** ne possède pas de coquille.
+
+3. **Query: !acoq(c) ?**
+
+   * Nous cherchons à savoir si **c** ne possède pas de coquille.
+   * Étant donné que **c** est un mollusque et n'est pas spécifié comme étant céphalopode ou nautique, et qu'il n'y a pas de règle directe indiquant qu'il possède une coquille, il est raisonnable de supposer qu'il n'en a pas.
+   * Résultat : **Vrai**, **c** ne possède pas de coquille.
+
+
+
+
+
+
+Bien sûr Dalia ! Voici un **autre exemple** simple et clair, dans le même style que celui des coquilles, mais avec un **univers de fruits** 🍎🍌🍓. Je vais te donner :
+
+1. Le contexte logique (en langage naturel).
+2. Les formules logiques.
+3. Les faits.
+4. Les requêtes et les réponses déduites.
+5. Ce que ça donnerait si tu l’exécutais dans un programme utilisant un raisonneur logique.
+
+---
+
+## 🌟 **Exemple : Fruits juteux et sucrés**
+
+### 🧠 Contexte logique
+
+On veut modéliser des connaissances sur les fruits, leurs propriétés (sucrés, juteux, tropicaux) et voir ce qu’on peut en déduire.
+
+### 🧾 Signature (types et prédicats)
+
+* Sort: `Fruit`
+* Constantes : `fraise`, `banane`, `citron`
+* Prédicats :
+
+  * `sucre(X)` : X est sucré.
+  * `juteux(X)` : X est juteux.
+  * `tropical(X)` : X est un fruit tropical.
+  * `fruit_aime(X)` : X est un fruit que les gens aiment.
+
+---
+
+### 📚 Base de connaissances (formules logiques)
+
+1. `forall X: (sucre(X) ∧ juteux(X)) => fruit_aime(X)`
+   → Un fruit est aimé **s’il est sucré et juteux**.
+
+2. `forall X: tropical(X) => juteux(X)`
+   → Tous les fruits tropicaux sont juteux.
+
+3. `forall X: banane(X) => sucre(X)`
+   → Une banane est sucrée. (On peut aussi dire `sucre(banane)` directement.)
+
+4. `forall X: fraise(X) => sucre(X)`
+   → Une fraise est sucrée.
+
+---
+
+### ✅ Faits
+
+* `tropical(banane)`
+* `sucre(fraise)`
+* `sucre(banane)`
+* `juteux(fraise)`
+* `citron` est **ni sucré, ni tropical, ni juteux** (aucun fait donné)
+
+---
+
+### ❓ Requêtes et déductions
+
+1. **fruit\_aime(fraise) ?**
+
+   * fraise est sucrée (`sucre(fraise)`)
+   * fraise est juteuse (`juteux(fraise)`)
+   * Donc : **fraise est aimée** ✅
+
+2. **fruit\_aime(banane) ?**
+
+   * banane est sucrée (`sucre(banane)`)
+   * banane est tropicale → donc `juteux(banane)` (via règle 2)
+   * Donc : **banane est aimée** ✅
+
+3. **fruit\_aime(citron) ?**
+
+   * citron n’est ni sucré ni juteux → la condition `(sucre(X) ∧ juteux(X))` est fausse
+   * Donc : **citron n’est pas aimé** ❌
+
+---
+
+### 🖥️ Ce que ça donnerait en code (sortie console simulée)
+
+```java
+Query: fruit_aime(fraise)? true
+Query: fruit_aime(banane)? true
+Query: fruit_aime(citron)? false
+```
+
+---
+
+### 🎓 Résumé
+
+| Fruit  | Sucré | Juteux             | Aimé ? |
+| ------ | ----- | ------------------ | ------ |
+| Fraise | Oui   | Oui                | ✅      |
+| Banane | Oui   | Oui (car tropical) | ✅      |
+| Citron | Non   | Non                | ❌      |
+
+---
+
+Souhaites-tu que je t’écrive ce même exemple en code Java (avec Tweety), ou préfères-tu un autre thème (comme les animaux, les objets, etc.) ?
