@@ -1,0 +1,188 @@
+Prérequis :
+
+Vous avez importé la bibliothèque Owlready2 dans votre script Python :
+Python
+
+from owlready2 import *
+Vous avez créé une ontologie (même vide pour l'instant) :
+Python
+
+onto = get_ontology("http://example.org/mon_ontologie.owl")
+
+
+1. Création des Concepts Atomiques
+Les concepts atomiques représentent les catégories de base de votre domaine de connaissances. Dans Owlready2, vous les créez en définissant des classes Python qui héritent de la classe de base Thing fournie par Owlready2. Il est crucial de définir ces classes dans le contexte de votre ontologie en utilisant un bloc with onto:.
+
+with onto:
+    class NomDuConcept(Thing):
+        pass
+
+NomDuConcept : Le nom que vous choisissez pour votre concept (par exemple, Personne, Animal, Voiture). Il est recommandé d'utiliser une convention de nommage avec une majuscule au début (PascalCase).
+Thing : La classe de base de tous les individus et concepts dans Owlready2. En héritant de Thing, vous indiquez que NomDuConcept est une catégorie d'entités dans votre ontologie.
+pass : Indique que la classe n'a pas de méthodes ou d'attributs spécifiques pour l'instant.     
+
+Human, Person, Female, Male, Woman, Man, Parent, Mother, Father, Grandmother, Aunt, Uncle, Sister, Brother sont tous des concepts atomiques (ou des combinaisons de concepts qui forment des concepts plus spécifiques).
+Nous utilisons l'héritage simple (class SousClasse(SuperClasse): pass) pour établir des relations de sous-typage (par exemple, Woman est une sous-classe de Female).
+Nous utilisons l'héritage multiple (class ConceptCompose(ConceptA, ConceptB): pass) pour indiquer qu'un concept est une spécialisation de plusieurs autres (par exemple, Mother est à la fois une Woman et un Parent).
+
+"Tout homme est une personne" :
+LD : Homme⊑Personne
+Owlready2 (via héritage) :
+class Homme(Personne):
+    pass
+
+"Tout parent a au moins un enfant qui est une personne" :
+LD : Parent⊑∃has_child.Personne
+Owlready2 (via définition de concept composé) :
+class Parent(Personne & has_child.some(Personne)):
+    pass
+
+"Un parent est équivalent à une personne qui a au moins un enfant qui est une personne" :
+LD : Parent≡Personne⊓∃has_child.Personne
+Owlready2 (via équation de classe) :
+with onto:
+    class Parent(Personne):
+        equivalent_to = [Personne & onto.has_child.some(Personne)]
+"Une mère est équivalente à une femme qui est un parent" :
+LD : M 
+e
+ˋ
+ re≡Femme⊓Parent
+Owlready2 (via héritage multiple) :
+class Mere(Femme, Parent):
+    pass
+
+
+2. Création des Rôles Atomiques
+Les rôles atomiques représentent les relations entre les individus (propriétés d'objet) ou les attributs des individus (propriétés de données). Dans Owlready2, vous les créez en définissant des classes Python qui héritent soit de ObjectProperty (pour les relations entre individus) soit de DataProperty (pour les attributs). Encore une fois, faites-le dans le contexte de votre ontologie (with onto:).
+
+a) Propriétés d'Objet (ObjectProperty)
+
+Elles définissent des relations entre des instances de concepts.
+
+Syntaxe :
+
+with onto:
+    class nom_du_role(ObjectProperty):
+        domain = [ConceptSource1, ConceptSource2, ...] # Les concepts qui peuvent être le sujet de la relation
+        range = [ConceptCible1, ConceptCible2, ...]   # Les concepts qui peuvent être l'objet de la relation
+        inverse_property = autre_role                 # Définit la propriété inverse (si elle existe)
+        transitive = True/False                     # Indique si la relation est transitive
+        symmetric = True/False                      # Indique si la relation est symétrique
+        functional = True/False                     # Indique si un individu ne peut avoir qu'un seul objet pour cette propriété
+        inverse_functional = True/False             # Indique si un individu ne peut avoir qu'un seul sujet pour cette propriété
+nom_du_role : Le nom de votre rôle (par exemple, has_child, has_friend). Il est courant d'utiliser une convention de nommage en minuscules avec des underscores (snake_case).
+domain : Une liste des concepts qui peuvent être le sujet (le point de départ) de cette relation.
+range : Une liste des concepts qui peuvent être l'objet (la destination) de cette relation.
+inverse_property : Le nom de la propriété qui représente la relation inverse (par exemple, l'inverse de has_child est has_parent).
+transitive : Si True, si A est lié à B par ce rôle et B est lié à C par ce rôle, alors A est aussi lié à C par ce rôle (par exemple, has_descendant).
+symmetric : Si True, si A est lié à B par ce rôle, alors B est aussi lié à A par ce rôle (par exemple, has_sibling).
+functional : Si True, chaque instance du domaine peut être liée à au plus une instance de la plage (par exemple, has_biological_mother).
+inverse_functional : Si True, chaque instance de la plage peut être liée à au plus une instance du domaine (par exemple, is_biological_mother_of).
+
+
+b) Propriétés de Données (DataProperty)
+
+Elles définissent des attributs (des valeurs littérales comme des chaînes de caractères, des nombres, des dates) pour les instances de concepts.
+
+Syntaxe :
+with onto:
+    class nom_de_la_propriete(DataProperty):
+        domain = [ConceptSource1, ConceptSource2, ...] # Les concepts qui peuvent avoir cet attribut
+        range = [str, int, float, datetime.date, ...] # Le type de données de l'attribut
+        functional = True/False                     # Indique si une instance ne peut avoir qu'une seule valeur pour cet attribut
+nom_de_la_propriete : Le nom de votre propriété de données (par exemple, has_age, has_name).
+domain : La liste des concepts qui peuvent avoir cet attribut.
+range : Le type de données des valeurs de cet attribut (utilisez les types Python appropriés).
+functional : Si True, chaque instance du domaine ne peut avoir qu'une seule valeur pour cette propriété.
+
+
+3.Un concept composé (ou concept complexe) est un concept défini en utilisant des combinaisons de concepts atomiques et de rôles, à l'aide de constructeurs de la Logique de Description. Ces constructeurs permettent d'exprimer des significations plus riches et de définir des catégories d'individus en fonction de leurs propriétés et de leurs relations avec d'autres individus.
+
+Les constructeurs courants en Logique de Description (et supportés par Owlready2) incluent :
+
+Conjonction (And ou &) : Un individu appartient à un concept composé formé par une conjonction si et seulement s'il appartient à tous les concepts combinés. Exemple : Homme & Parent représente les individus qui sont à la fois des hommes et des parents.
+Disjonction (Or ou |) : Un individu appartient à un concept composé formé par une disjonction s'il appartient à au moins un des concepts combinés. Exemple : Medecin | Infirmier représente les individus qui sont soit médecins, soit infirmiers.
+Négation (Not ou -) : Un individu appartient à un concept composé formé par une négation s'il n'appartient pas au concept nié. Exemple : Not Femme représente les individus qui ne sont pas des femmes.
+Restriction existentielle (Some ou exists) : Un individu appartient à un concept composé formé par une restriction existentielle sur un rôle s'il a au moins un voisin (un individu lié par ce rôle) qui appartient à un certain concept. Exemple : has_child.some(Personne) représente les individus qui ont au moins un enfant qui est une personne.
+Restriction universelle (All ou forall) : Un individu appartient à un concept composé formé par une restriction universelle sur un rôle si tous ses voisins (tous les individus liés par ce rôle) appartiennent à un certain concept. Exemple : has_child.all(Homme) représente les individus dont tous les enfants sont des hommes.
+Cardinalité (Exactly, Min, Max) : Ces constructeurs permettent de spécifier le nombre exact, minimum ou maximum de voisins qu'un individu doit avoir via un certain rôle et qui appartiennent à un certain concept. Exemple : has_child.exactly(2, Femme) représente les individus qui ont exactement deux enfants qui sont des femmes.
+Comment Définir des Concepts Composés avec Owlready2 ?
+
+Dans Owlready2, vous définissez des concepts composés en assignant une expression de concept (utilisant les constructeurs mentionnés ci-dessus) à une classe Python. Cette classe représente alors le concept composé. Vous continuez à utiliser le bloc with onto: pour définir ces classes dans votre ontologie.
+Syntaxe Générale :
+with onto:
+    class NomDuConceptCompose(ConceptAtomique1 & ConceptAtomique2 & has_role.some(ConceptLie) | Not ConceptAtomique3):
+        pass
+Owlready2 surcharge les opérateurs Python (&, |, -) pour représenter la conjonction, la disjonction et la négation respectivement. Pour les restrictions sur les rôles (Some, All, Exactly, Min, Max), vous utilisez les attributs de la classe de rôle elle-même, suivis de la restriction et du concept lié.
+
+
+
+
+
+4. L'ABox contient les faits concrets concernant les individus de notre domaine. Elle affirme l'appartenance d'individus à des concepts et les relations qui existent entre eux via les rôles définis dans la TBox.
+
+En d'autres termes, l'ABox répond à des questions comme "Qui est qui ?" et "Qui est relié à qui ?".
+
+Comment Définir l'ABox avec Owlready2 ?
+
+Dans Owlready2, vous définissez l'ABox en créant des instances des classes (concepts) que vous avez définies et en établissant des relations entre ces instances en utilisant les propriétés (rôles) que vous avez créées. Vous continuez à travailler dans le contexte de votre ontologie (with onto:).
+
+1) Création d'Individus (Instances de Concepts)
+
+Pour créer un individu, vous instanciez une des classes (concepts) que vous avez définies dans votre TBox. Vous pouvez donner un nom à chaque instance.
+
+Syntaxe :
+with onto:
+    nom_de_l_individu = NomDuConcept("NomAffichéDeLIndividu")
+nom_de_l_individu : Le nom de la variable Python qui représentera cette instance dans votre code. Il est souvent en minuscules.
+NomDuConcept : La classe (le concept) dont cet individu est une instance (par exemple, Personne, Mere, Voiture).
+"NomAffichéDeLIndividu" (facultatif) : Une étiquette ou un nom plus convivial pour identifier cet individu. Cela peut être utile pour la sérialisation ou l'affichage. Si vous ne le spécifiez pas, Owlready2 générera un identifiant unique.
+
+
+2) Définition des Relations entre les Individus (Utilisation des Propriétés d'Objet)
+
+Pour établir des relations entre les individus, vous utilisez les propriétés d'objet (les rôles) que vous avez définies dans votre TBox. Vous accédez à la propriété de l'objet source et lui assignez l'objet cible de la relation.
+
+Syntaxe (pour une propriété à valeur unique - fonctionnelle) :
+individu_source.nom_du_role = individu_cible
+
+Syntaxe (pour une propriété à valeurs multiples) :
+individu_source.nom_du_role.append(individu_cible)
+# Ou pour ajouter plusieurs à la fois :
+individu_source.nom_du_role.extend([individu_cible1, individu_cible2])
+
+
+3) Définition des Attributs des Individus (Utilisation des Propriétés de Données)
+Pour assigner des valeurs aux attributs des individus, vous utilisez les propriétés de données que vous avez définies.
+
+Syntaxe :
+individu.nom_de_la_propriete_de_donnees = valeur
+
+
+
+
+
+5. TESTS INFERENCES:
+
+Effectuer le raisonnement :
+
+sync_reasoner(infer_property_values=True, infer_data_property_values=True): Cette ligne invoque le raisonneur (HermiT ou Pellet, selon ce qui est disponible) pour calculer toutes les inférences possibles basées sur votre TBox et votre ABox. Les arguments infer_property_values et infer_data_property_values assurent que les nouvelles relations entre individus et les nouvelles valeurs d'attributs sont également inférées.
+Poser des requêtes et vérifier les résultats :
+
+eve.is_a: Vérifie tous les concepts auxquels l'individu eve appartient, après le raisonnement. Cela vous permet de voir si elle a été correctement classée comme Woman (et potentiellement d'autres classes plus générales).
+assert onto.Woman in eve.is_a: Ceci est un test. Il vérifie que Eve est bien une instance de Woman. Si ce n'est pas le cas, le programme s'arrêtera avec une erreur.
+alice.has_child: Affiche les enfants d'Alice.
+assert betty in alice.has_child: Ceci est un test. Il vérifie que betty est bien l'enfant de alice.
+betty.has_parent: Affiche les parents de Betty.
+assert alice in betty.has_parent: Ceci est un test. Il vérifie que alice est bien le parent de betty
+list(onto.Sister.instances()): Récupère toutes les instances du concept Sister après le raisonnement. Cela vous permet de vérifier si les individus corrects (Doris et Eve) ont été inférés comme sœurs.
+assert doris in onto.Sister.instances(): Ceci est un test. Il vérifie que doris est bien une instance de Sister.
+list(onto.Grandmother.instances()): Récupère toutes les instances du concept Grandmother.
+assert alice in onto.Grandmother.instances(): Ceci est un test. Il vérifie que alice est bien une instance de Grandmother.
+charles.has_name et charles.has_age: Affiche le nom et l'âge de Charles.
+assert charles.has_name == "Charles": Ceci est un test. Il vérifie que le nom de charles est bien "Charles".
+assert charles.has_age == 25: Ceci est un test. Il vérifie que l'age de charles est bien 25.
+Requête complexe :
+La dernière partie du code démontre une requête plus complexe pour trouver les personnes qui ont au moins un enfant, et les personnes qui ont exactement une fille. Cela montre comment vous pouvez utiliser des expressions Python pour interroger votre ontologie de manière plus avancée.
+assert alice in parents: Ceci est un test. Il vérifie que alice est bien dans la liste des parents.

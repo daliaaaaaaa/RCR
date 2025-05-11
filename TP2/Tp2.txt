@@ -248,6 +248,152 @@ Query: fruit_aime(citron)? false
 | Banane | Oui   | Oui (car tropical) | ✅      |
 | Citron | Non   | Non                | ❌      |
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cet exemple illustre l'utilisation de **la logique des prédicats** (ou **logique du premier ordre**) pour représenter des connaissances sur des objets, leurs propriétés, et les relations entre eux.
+
+### 🌐 **Contexte général**
+
+La logique des prédicats permet de raisonner sur des objets (ou entités) et leurs relations, ainsi que sur des propriétés de ces objets. Contrairement à la logique propositionnelle, qui ne travaille qu'avec des propositions simples, la logique des prédicats introduit des **quantificateurs** (comme **∀** pour "pour tout" et **∃** pour "il existe") et des **prédicats** pour exprimer des relations complexes.
+
+### 👩‍🏫 **Exemple 4 : Fruits sucrés et juteux**
+
+Voici l'exemple en question, et nous allons l'analyser étape par étape.
+
+```java
+// Définition de la signature
+FolSignature sig4 = new FolSignature(true);
+Sort sortFruit = new Sort("Fruit");
+sig4.add(sortFruit);
+
+// Constantes : fraise, banane, citron
+Constant fraise = new Constant("fraise", sortFruit);
+Constant banane = new Constant("banane", sortFruit);
+Constant citron = new Constant("citron", sortFruit);
+sig4.add(fraise, banane, citron);
+
+// Prédicats
+Predicate sucre = new Predicate("sucre", List.of(sortFruit));
+Predicate juteux = new Predicate("juteux", List.of(sortFruit));
+Predicate tropical = new Predicate("tropical", List.of(sortFruit));
+Predicate fruitAime = new Predicate("fruit_aime", List.of(sortFruit));
+sig4.add(sucre, juteux, tropical, fruitAime);
+
+// Ajout des faits et des règles dans la base de croyances
+bs4.add((FolFormula) parser.parseFormula("forall X: ((sucre(X) && juteux(X)) => fruit_aime(X))"));
+bs4.add((FolFormula) parser.parseFormula("forall X: (tropical(X) => juteux(X))"));
+bs4.add((FolFormula) parser.parseFormula("sucre(fraise)"));
+bs4.add((FolFormula) parser.parseFormula("juteux(fraise)"));
+bs4.add((FolFormula) parser.parseFormula("sucre(banane)"));
+bs4.add((FolFormula) parser.parseFormula("tropical(banane)"));
+
+// Requêtes
+System.out.println("Query: fruit_aime(fraise)? " + reasoner.query(bs4, parser.parseFormula("fruit_aime(fraise)")));
+```
+
 ---
 
-Souhaites-tu que je t’écrive ce même exemple en code Java (avec Tweety), ou préfères-tu un autre thème (comme les animaux, les objets, etc.) ?
+### 1. **Signature et constantes**
+
+Dans la **signature** (`FolSignature`), on définit les **types** d'objets (ici, des **fruits**), puis on crée des **constantes** qui représentent des objets spécifiques. Par exemple :
+
+* **Fruits** : `fraise`, `banane`, `citron` sont des objets de type `Fruit`.
+
+### 2. **Prédicats**
+
+Les **prédicats** représentent des relations ou des propriétés des objets. Ici, les prédicats sont :
+
+* **`sucre(X)`** : "X est sucré"
+* **`juteux(X)`** : "X est juteux"
+* **`tropical(X)`** : "X est tropical"
+* **`fruit_aime(X)`** : "On aime X comme fruit"
+
+### 3. **Formules et règles**
+
+Les **formules** sont des expressions qui affirment des relations sur les objets. En logique des prédicats, une formule peut être une **proposition** ou une **règle conditionnelle**. Les **quantificateurs** sont utilisés pour rendre ces affirmations générales. Exemple :
+
+* **Règle 1** :
+
+  ```java
+  forall X: ((sucre(X) && juteux(X)) => fruit_aime(X))
+  ```
+
+  Cette règle signifie : "Pour tout fruit X, si X est sucré et juteux, alors X est un fruit que j'aime". Cela lie les propriétés **sucré** et **juteux** au fait qu'un fruit soit aimé.
+
+* **Règle 2** :
+
+  ```java
+  forall X: (tropical(X) => juteux(X))
+  ```
+
+  Cette règle dit : "Pour tout fruit X, si X est tropical, alors X est juteux".
+
+### 4. **Faits**
+
+Les **faits** sont des affirmations spécifiques concernant des objets particuliers. Par exemple :
+
+* **`sucre(fraise)`** : "La fraise est sucrée".
+* **`juteux(fraise)`** : "La fraise est juteuse".
+* **`sucre(banane)`** : "La banane est sucrée".
+* **`tropical(banane)`** : "La banane est tropicale".
+
+### 5. **Requêtes**
+
+Les **requêtes** sont utilisées pour poser des questions au système de raisonnement logique. Par exemple :
+
+* **Requête 1** :
+
+  ```java
+  fruit_aime(fraise)
+  ```
+
+  Cela demande : "Est-ce que je **aime** la **fraise** comme fruit ?" Le système va vérifier si, selon les faits et les règles, la fraise est sucrée et juteuse, et donc si elle est aimée.
+
+---
+
+### 6. **Raisonnement**
+
+Le raisonnement se fait sur la base des **règles** et des **faits** ajoutés. Le système utilise les **formules** et les **prédicats** pour déduire des nouvelles connaissances. Par exemple :
+
+* Le raisonnement peut conclure que, puisque **la fraise est sucrée** et **juteuse**, elle est donc **aimée** grâce à la règle : `forall X: (sucre(X) && juteux(X)) => fruit_aime(X)`.
+* De même, **la banane étant tropicale**, elle est **juteuse** grâce à la règle : `forall X: (tropical(X) => juteux(X))`.
+
+---
+
+### 7. **Conclusion du raisonnement** :
+
+Lorsque vous interrogez le système avec :
+
+```java
+System.out.println("Query: fruit_aime(fraise)? " + reasoner.query(bs4, parser.parseFormula("fruit_aime(fraise)")));
+```
+
+Le système déduira que **la fraise est sucrée et juteuse**, donc selon la règle **"si un fruit est sucré et juteux, il est aimé"**, il répondra **vrai**.
+
+---
+
+### 💡 Résumé :
+
+Cet exemple montre comment :
+
+1. **Modéliser des objets (fruits)** et leurs **propriétés** avec des **prédicats** (ex. `sucre(X)`).
+2. **Écrire des règles générales** (ex. "Si un fruit est sucré et juteux, alors il est aimé").
+3. **Poser des questions** sur des objets particuliers (ex. "Est-ce que la fraise est aimée ?").
+
