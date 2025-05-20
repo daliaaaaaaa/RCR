@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VS Code settings
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Owlready2 reasoner temp files
+hermit.log
+pellet.log
+
+# Ignore large or unnecessary jars
+tweety-full.jar
+
+# Ignore ontology output files
+*.owl
+*.rdf
+*.ttl
+
+# Ignore test result files
+*.pytest_cache/
+*.coverage
+htmlcov/
+.coverage.*
+
+# Ignore user-specific files
+*.swp
+*.swo
+*.bak
+*.tmp
