@@ -1,0 +1,1 @@
+ubcsat -alg saps -i cephalopode.cnf -solve

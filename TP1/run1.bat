@@ -1,0 +1,1 @@
+ubcsat -alg saps -i test1.cnf -solve
