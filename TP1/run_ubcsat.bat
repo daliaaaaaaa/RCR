@@ -2,10 +2,10 @@
 setlocal enabledelayedexpansion
 
 REM Chemin vers le répertoire contenant les fichiers CNF
-set "cnf_dir=D:\RCR_TP\Benchmark\uf20-91"
+set "cnf_dir=d:\RCR_TP\Benchmark\uf20-91"
 
 REM Chemin vers l'exécutable ubcsat
-set "ubcsat_path=D:\RCR_TP\TP1\RCR\ubcsat.exe"
+set "ubcsat_path=D:\RCR_TP\RCR\TP1\ubcsat.exe"
 
 REM Parcourir tous les fichiers CNF dans le répertoire
 for %%f in ("%cnf_dir%\*.cnf") do (
