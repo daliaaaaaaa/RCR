@@ -60,18 +60,30 @@ edges = [
 for src, dst, rel in edges:
     G.add_edge(src, dst, relation=rel)
 
-# # --- Affichage du graphe ---
-# pos = nx.spring_layout(G, seed=42)
-# edge_labels = nx.get_edge_attributes(G, 'relation')
-# node_labels = {node: f"{node}\n({data['type']})" for node, data in G.nodes(data=True)}
+# --- Affichage du graphe ---
+plt.figure(figsize=(16, 10))
+pos = nx.spring_layout(G, seed=42)
+edge_labels = nx.get_edge_attributes(G, "relation")
+node_colors = []
+color_map = {
+    "catégorie": "#FFD700",
+    "logique": "#87CEEB",
+    "axiome": "#FF6347",
+    "système": "#90EE90",
+    "formule": "#DDA0DD",
+    "modèle": "#FFA500",
+    "acteur": "#B0C4DE",
+    "chercheur": "#A0522D"
+}
+for n in G.nodes:
+    node_type = G.nodes[n].get("type", None)
+    node_colors.append(color_map.get(node_type, "#CCCCCC"))
 
-# plt.figure(figsize=(18, 12))
-# nx.draw(G, pos, with_labels=True, labels=node_labels,
-#         node_color='lightblue', node_size=2000, font_size=8, font_weight='bold')
-# nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8, font_color='black')
-# plt.title("Graphe sémantique - Modes de représentations des connaissances")
-# plt.axis('off')
-# plt.show()
+nx.draw(G, pos, with_labels=True, node_color=node_colors, node_size=2000, font_size=10, arrows=True)
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color="red", font_size=9)
+plt.title("Graphe des modes de représentations des connaissances")
+plt.tight_layout()
+plt.show()
 
 # Fonction de propagation de marqueurs
 

@@ -1,0 +1,99 @@
+🧩 1. Définition des Formules Modales
+Cette partie définit différentes formules logiques utilisées dans la logique modale, à travers des classes :
+
+Propos(name): une proposition atomique, comme p, q, etc.
+
+Non(formule): la négation ¬φ
+
+Et(f1, f2): la conjonction φ ∧ ψ
+
+Ou(f1, f2): la disjonction φ ∨ ψ
+
+Implique(f1, f2): l'implication φ ⊃ ψ
+
+Necessaire(formule): □φ (nécessairement vrai)
+
+Possible(formule): ◇φ (possiblement vrai)
+
+Chaque classe possède une méthode __repr__() pour une représentation ASCII lisible des formules.
+
+🌐 2. Modèle de Kripke (ModeleKripke)
+Un modèle de Kripke est un triplet 
+(
+𝑊
+,
+𝑅
+,
+𝑉
+)
+(W,R,V) :
+
+W : ensemble des mondes (self.mondes)
+
+R : relation d’accessibilité entre les mondes (self.relation_R)
+
+V : valuation, c’est-à-dire les propositions vraies dans chaque monde (self.valuation_V)
+
+Fonctionnalités offertes :
+
+ajouter_monde(nom) : ajoute un monde.
+
+ajouter_relation(w1, w2) : définit que w2 est accessible depuis w1.
+
+ajouter_proposition_vraie(w, p) : rend la proposition p vraie dans le monde w.
+
+mondes_accessibles(w) : retourne les mondes accessibles depuis w.
+
+✅ 3. Fonction d'Évaluation
+python
+Copier
+Modifier
+def evaluer(formule, modele, monde_actuel)
+Permet de déterminer si une formule est vraie dans un monde donné. Exemples :
+
+evaluer(p, M, w1) : est-ce que p est vraie dans le monde w1 du modèle M ?
+
+Pour □φ, on vérifie si φ est vraie dans tous les mondes accessibles.
+
+Pour ◇φ, on vérifie si φ est vraie dans au moins un monde accessible.
+
+👁️ 4. Visualisation
+La fonction visualiser_modele_kripke() utilise networkx et matplotlib pour dessiner le graphe du modèle de Kripke, avec :
+
+Nœuds représentant les mondes
+
+Arcs dirigés représentant la relation d'accessibilité
+
+Étiquettes affichant les propositions vraies dans chaque monde
+
+📘 5. Application (main)
+Dans la dernière partie (non affichée entièrement), un exemple est construit :
+
+Création de propositions a, b, c, d
+
+Définition d’un modèle de Kripke nommé "Modèle de l'Exercice 2"
+
+Ajout de 6 mondes (w1 à w6)
+
+Définition de la relation d'accessibilité R (ex: w1 → w2, w3 → w4, etc.)
+
+Ajout de certaines propositions vraies dans certains mondes
+
+Possibilité d’évaluer des formules modales dans ce modèle
+
+Visualisation du graphe avec NetworkX
+
+🎓 Exemple d'usage :
+python
+Copier
+Modifier
+phi = Necessaire(Propos("p"))
+evaluer(phi, modele_M, "w1") 
+# Cela vérifie si "dans tous les mondes accessibles depuis w1, p est vraie"
+Si tu veux, je peux :
+
+Te montrer un exemple complet d’évaluation
+
+T’expliquer comment faire une formule plus complexe
+
+Te montrer le graphe généré par visualiser_modele_kripke

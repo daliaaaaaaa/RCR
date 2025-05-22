@@ -1,0 +1,93 @@
+
+# Explication du projet Python : Raisonnement par règles par défaut
+
+---
+
+## Contexte général
+
+Ce projet met en œuvre un **système de raisonnement par défaut** (default reasoning) qui est une approche en intelligence artificielle pour raisonner avec des règles qui sont généralement vraies, mais pas toujours, en présence d'informations incomplètes ou contradictoires.
+
+---
+
+## Structure et composants du code
+
+### 1. Classe `Formula`
+
+* Représente une **formule logique** simple (comme "A", "!C", etc.).
+* Gère la **négation** d'une formule (par exemple, la négation de "A" est "!A", et celle de "!C" est "C").
+* Permet de comparer, d’afficher, et de stocker des formules dans des ensembles (`__hash__`).
+
+### 2. Classe `DefaultRule`
+
+* Représente une règle par défaut, qui a 3 parties :
+
+  * **prérequis** (prerequisite) : condition qui doit être vraie pour appliquer la règle (ex: "A").
+  * **justifications** (justifications) : hypothèses supposées vraies pour appliquer la règle (ex: "B", ou "!C").
+  * **conclusion** (conclusion) : ce que la règle permet de déduire (ex: "C", ou "D").
+
+* Exemple d'une règle par défaut dans le code :
+  `A : B / C` signifie : "Si A est vrai, et qu'il est possible de supposer B, alors on peut conclure C."
+
+### 3. Fonctions utilitaires
+
+* `powerset(iterable)`: génère tous les sous-ensembles possibles d’un ensemble, pour tester toutes les combinaisons de règles par défaut.
+* `entails(beliefs, formula)`: vérifie si une formule est dans un ensemble de croyances.
+* `consistent(beliefs)`: vérifie que l’ensemble des croyances ne contient pas une formule et sa négation (ex: "C" et "!C"), ce qui rendrait l'ensemble incohérent.
+
+### 4. Base de faits et règles par défaut (théorie)
+
+* Deux bases de faits différentes :
+
+  * Cas 1 : {A, !C}
+  * Cas 2 : {A, !D}
+
+* Deux règles par défaut :
+
+  * d1 : si A et B supposé vrai, alors conclure C
+  * d2 : si A et !C supposé vrai, alors conclure D
+
+### 5. Fonction principale `generate_extensions`
+
+* Cette fonction calcule les **extensions** d’une théorie par défaut.
+* Une extension est un ensemble maximal de croyances (faits + conclusions tirées par les règles par défaut) qui est **cohérent**.
+* Elle procède ainsi :
+
+  * Teste toutes les combinaisons possibles de règles par défaut (avec `powerset`).
+  * Pour chaque combinaison candidate, applique les règles par défaut de façon itérative tant que ça fait évoluer l’ensemble des croyances.
+  * Vérifie la cohérence de l’ensemble obtenu.
+  * Conserve les ensembles cohérents uniques comme extensions.
+
+---
+
+## Que fait le programme ?
+
+* Il parcourt les deux bases de faits données.
+* Pour chaque base, il calcule et affiche les extensions (ensembles cohérents de croyances) générées par les règles par défaut.
+* Cela permet de voir quelles conclusions peuvent être raisonnablement déduites compte tenu des faits et des règles.
+
+---
+
+## Exemple résumé avec les données fournies
+
+* Base 1 : {A, !C}
+* Base 2 : {A, !D}
+
+Règles :
+
+* d1: si A et B possible alors C
+* d2: si A et !C possible alors D
+
+Le raisonneur va chercher quelles conclusions (C ou D) peuvent être ajoutées aux bases, en respectant la cohérence, et trouver les ensembles qui forment des extensions valides.
+
+---
+
+## Pourquoi c’est utile ?
+
+* Les règles par défaut sont utilisées pour modéliser des situations où l’on fait des hypothèses par défaut, sauf preuve du contraire.
+* Par exemple, dire "Normalement, les oiseaux volent" mais "Si un oiseau est un pingouin, il ne vole pas".
+* Ici, on modélise ça avec des règles et on calcule les extensions pour savoir quelles croyances sont valides.
+
+---
+
+Si tu veux, je peux aussi t’aider à comprendre un morceau précis du code, ou t’expliquer comment modifier/étendre ce raisonneur !
+Tu souhaites ?

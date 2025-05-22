@@ -1,7 +1,7 @@
 import java.util.*;
-import org.tweetyproject.logics.fol.parser.FolParser;
-import org.tweetyproject.logics.fol.reasoner.FolReasoner;
-import org.tweetyproject.logics.fol.reasoner.SimpleFolReasoner;
+import org.tweetyproject.logics.fol.parser.FolParser; // d’analyser et de convertir des chaînes de caractères en formules syntaxiques et FOL
+import org.tweetyproject.logics.fol.reasoner.FolReasoner; //raisonneurs FOL
+import org.tweetyproject.logics.fol.reasoner.SimpleFolReasoner; //implementation basé sur table de vérité
 import org.tweetyproject.logics.fol.syntax.*;
 import org.tweetyproject.logics.commons.syntax.*;
 
@@ -9,23 +9,26 @@ import org.tweetyproject.logics.commons.syntax.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+       //initialisation du raisonneur
         FolReasoner.setDefaultReasoner(new SimpleFolReasoner());
         FolReasoner reasoner = FolReasoner.getDefaultReasoner();
 
         System.out.println("=== Exemple 1 : Oiseaux ===");
-        FolSignature sig1 = new FolSignature(true);
-        Sort sortAnimal1 = new Sort("Animal");
+        //création de la signature (pour definir les types d'objets)
+        FolSignature sig1 = new FolSignature(true); //contient * elements syntaxique
+        Sort sortAnimal1 = new Sort("Animal"); //definir type objet
         sig1.add(sortAnimal1);
-        Constant penguin = new Constant("mouette", sortAnimal1);
-        Constant kiwi = new Constant("autruche", sortAnimal1);
-        sig1.add(penguin, kiwi);
+        Constant mouette = new Constant("mouette", sortAnimal1);
+        Constant autruche = new Constant("autruche", sortAnimal1);
+        sig1.add(mouette, autruche);
         Predicate flies = new Predicate("Flies", List.of(sortAnimal1));
         Predicate knows = new Predicate("Knows", List.of(sortAnimal1, sortAnimal1));
         sig1.add(flies, knows);
 
+        //analyseurs syntaxique
         FolParser parser = new FolParser();
-        parser.setSignature(sig1);
-        FolBeliefSet bs1 = new FolBeliefSet(); //ensemble de croyances
+        parser.setSignature(sig1); //associé a une signature
+        FolBeliefSet bs1 = new FolBeliefSet(); //bs1 ensemble de croyances
         bs1.add((FolFormula) parser.parseFormula("!Flies(autruche)"));
         bs1.add((FolFormula) parser.parseFormula("Flies(mouette)"));
         bs1.add((FolFormula) parser.parseFormula("!Knows(mouette,autruche)")); // la mouette ne connait pas l'autruche
@@ -126,6 +129,7 @@ public class Main {
         bs4.add((FolFormula) parser.parseFormula("juteux(fraise)"));
         bs4.add((FolFormula) parser.parseFormula("sucre(banane)"));
         bs4.add((FolFormula) parser.parseFormula("tropical(banane)"));
+        bs4.add((FolFormula) parser.parseFormula("!sucre(citron)"));
 
         // Requêtes
         System.out.println(bs4);

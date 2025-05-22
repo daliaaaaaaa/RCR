@@ -1,4 +1,5 @@
 import networkx as nx
+import matplotlib.pyplot as plt
 
 # Création du graphe
 G = nx.DiGraph()
@@ -48,3 +49,18 @@ heritage_avec_inhibition(G)
 # Résultat final
 for node, data in G.nodes(data=True):
     print(f"• {node} hérite : {data['propriétés']}")
+
+# --- Affichage du graphe ---
+pos = nx.spring_layout(G, seed=42)
+edge_labels = nx.get_edge_attributes(G, 'relation')
+exception_labels = nx.get_edge_attributes(G, 'exception')
+
+# Crée des couleurs différentes pour les exceptions
+edge_colors = ['red' if G.edges[edge].get('exception', False) else 'black' for edge in G.edges]
+
+plt.figure(figsize=(10, 7))
+nx.draw(G, pos, with_labels=True, node_color='lightblue', edge_color=edge_colors, node_size=2000, font_size=10, font_weight='bold')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='green')
+
+plt.title("Graphe d'héritage avec exceptions (rouge = exception)")
+plt.show()

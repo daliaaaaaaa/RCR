@@ -4,6 +4,10 @@ from owlready2 import *
 onto = get_ontology("http://example.org/relations_familiales.owl")
 
 with onto:
+    
+    # TBOX
+
+    # Conceptets atomiques (classes de base)
     class Human(Thing):
         """La classe de base pour tous les humains."""
         pass
@@ -61,6 +65,7 @@ with onto:
         pass
 
     # Définition des rôles atomiques (propriétés d'objet)
+    # Les propriétés d’objet définissent les relations entre des instances de concepts.
     class has_parent(ObjectProperty):
         """Relie une personne à son parent."""
         domain = [Person]
@@ -96,6 +101,7 @@ with onto:
         # Le domaine reste Person, car une personne peut avoir un frère
 
     # Définition des rôles atomiques (propriétés de données)
+    # Les propriétés de données définissent des attributs littéraux pour les individus : nom, âge, etc.
     class has_name(DataProperty):
         """Relie une personne à son nom (une chaîne de caractères)."""
         domain = [Person]
@@ -118,7 +124,7 @@ with onto:
         pass
 
     class Grandmother(Mother):
-        equivalent_to = [onto.Mother & onto.has_child.some(onto.Parent)]
+        equivalent_to = [onto.Mother & onto.has_child.some(onto.Parent)] #somme il existe
         pass
 
     class Aunt(Woman):
@@ -149,15 +155,15 @@ with onto:
 
     class PersonWithAtLeastTwoChildren(Person):
         """Une personne qui a au moins deux enfants."""
-        equivalent_to = [onto.Person & onto.has_child.min(2, onto.Person)]
+        equivalent_to = [onto.Person & onto.has_child.min(2, onto.Person)]  #en moins 2 enfants
         pass
 
     class PersonWithExactlyOneDaughter(Person):
         """Une personne qui a exactement une fille."""
-        equivalent_to = [onto.Person & onto.has_child.exactly(1, onto.Woman)]
+        equivalent_to = [onto.Person & onto.has_child.exactly(1, onto.Woman)]  #=1
         pass
 
-    # Phase 4 : Définition de la ABox (Assertional Box)
+    #  Définition de la ABox (Assertional Box)
     # L'ABox contient les instances des concepts et les relations entre elles
 
     # Création d'individus (instances des classes)
@@ -190,11 +196,11 @@ with onto:
     doris.has_age.append(20)
     eve.has_age.append(18)
 
-    # Phase 5 : Raisonnement
+    # Raisonnement
     # Invoquer un raisonneur pour effectuer des inférences
     sync_reasoner(infer_property_values=True)
     
-    # Phase 6 : Tests et requêtes
+    # Tests et requêtes
     # Vérifier les types inférés
     print("Types inférés pour Eve :", eve.is_a)
     assert any(isinstance(cls, onto.Woman.__class__) for cls in eve.is_a)
